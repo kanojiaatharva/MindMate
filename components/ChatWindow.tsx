@@ -111,6 +111,13 @@ const MicIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     </svg>
 );
 
+const ResetIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+        <path d="M3 3v5h5"/>
+    </svg>
+);
+
 const ChatWindow: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -249,8 +256,37 @@ const ChatWindow: React.FC = () => {
     }
   };
 
+  const handleReset = async () => {
+    const confirmReset = window.confirm(
+      "Are you sure you want to reset the chat? This will permanently delete your current conversation history."
+    );
+    if (confirmReset) {
+      setIsLoading(true);
+      setMessages([]);
+      localStorage.removeItem(CHAT_HISTORY_KEY);
+      
+      startChat(); // Reset chat service state
+      const initialGreeting = await getMindMateResponse("Hello, I'm starting a new session and would like a friendly greeting.");
+      setMessages([{ author: MessageAuthor.AI, text: initialGreeting }]);
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col bg-white overflow-hidden">
+      <div className="p-4 bg-white border-b flex justify-between items-center flex-shrink-0">
+        <h2 className="text-lg font-semibold text-gray-800">Chat with MindMate</h2>
+        <button
+            onClick={handleReset}
+            disabled={isLoading}
+            className="p-2 text-gray-500 rounded-full hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            aria-label="Reset chat"
+            title="Reset Chat"
+        >
+            <ResetIcon className="w-5 h-5" />
+        </button>
+      </div>
+
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {isLoading && messages.length === 0 && <TypingIndicator />}
         {messages.map((msg, index) => (
@@ -260,6 +296,7 @@ const ChatWindow: React.FC = () => {
         {isLoading && messages.length > 0 && messages[messages.length-1]?.author === MessageAuthor.USER && <TypingIndicator />}
         <div ref={messagesEndRef} />
       </div>
+
       <div className="p-4 bg-white border-t">
         <div className="flex items-center bg-gray-100 rounded-xl p-2">
           <textarea
