@@ -1,0 +1,5 @@
+{
+  "name": "MindMate: AI Mental Health Companion",
+  "description": "An AI-powered mental health companion app that provides a safe and supportive space for users. It offers empathetic conversations, evidence-based coping strategies, and helps users navigate their emotional well-being.",
+  "requestFramePermissions": ["microphone"]
+}
